@@ -1,4 +1,3 @@
-1. jalankan file preprocess
-2. jalankan file train
-3. jalankan file evaluasi
-4. jalankan file infrence
+1. jalankan file train
+2. jalankan file evaluasi
+3. jalankan file infrence
