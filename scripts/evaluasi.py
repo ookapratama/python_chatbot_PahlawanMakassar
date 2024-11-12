@@ -76,7 +76,8 @@ def evaluate_model(model_path, dataset_file, model_name, max_length=512):
 
 if __name__ == "__main__":
     model_path = "./fine_tuned_model/"  # Path model yang sudah dilatih
-    dataset_file = "../dataset/qa_dataset.csv"  # Path dataset
+    # dataset_file = "../dataset/qa_dataset.csv"  # Path dataset
+    dataset_file = "../dataset/enhanced_qa_dataset.csv"  # Path dataset
     # model_name = "mrm8488/bert-small-finetuned-squadv2"  # Model yang digunakan
     # model_name = "Wikidepia/indobert-lite-squad"  
     model_name = "malaputri/indobert-squad-id"  

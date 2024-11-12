@@ -65,7 +65,8 @@ def inference_from_input(question, model, tokenizer, dataset_file):
 
 if __name__ == "__main__":
     model_path = "./fine_tuned_model/"  # Path ke model yang sudah dilatih
-    dataset_file = "../dataset/qa_dataset.csv"  # Path ke dataset
+    # dataset_file = "../dataset/qa_dataset.csv"  # Path ke dataset
+    dataset_file = "../dataset/enhanced_qa_dataset.csv"  # Path ke dataset
 
     # Memuat model dan tokenizer
     model, tokenizer = load_model(model_path)

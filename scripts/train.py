@@ -66,7 +66,8 @@ if __name__ == "__main__":
     # model_name = "mrm8488/bert-small-finetuned-squadv2"  # IndoBERT untuk bahasa Indonesia
     # model_name = "Wikidepia/indobert-lite-squad"  # IndoBERT untuk bahasa Indonesia
     model_name = "malaputri/indobert-squad-id"  
-    dataset_file = "../dataset/qa_dataset.csv"  # Dataset yang sudah disesuaikan
+    # dataset_file = "../dataset/qa_dataset.csv"  # Dataset yang sudah disesuaikan
+    dataset_file = "../dataset/enhanced_qa_dataset.csv"  # Dataset yang sudah disesuaikan
     output_dir = "./fine_tuned_model/"
 
     train_model(model_name, dataset_file, output_dir)
