@@ -33,13 +33,17 @@ def train_qa(model_name, dataset_file, output_dir, max_length=512):
 # from datasets import Dataset
 # from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 
+# import pandas as pd
+# from datasets import Dataset
+# from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
+
 def train_text_generation(model_name, dataset_file, output_dir, max_length=512):
     """
     Melatih model Text Generation.
     """
     # Load dataset
     data = pd.read_csv(dataset_file)
-    
+
     # Validasi data
     data['prompt'] = data['prompt'].astype(str)
     data['target'] = data['target'].astype(str)
@@ -47,17 +51,26 @@ def train_text_generation(model_name, dataset_file, output_dir, max_length=512):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
 
-    # Tokenisasi dataset
-    dataset = Dataset.from_dict({
-        'input_ids': [
-            tokenizer(prompt, max_length=max_length, truncation=True, return_tensors="pt")['input_ids'][0]
-            for prompt in data['prompt']
-        ],
-        'labels': [
-            tokenizer(target, max_length=max_length, truncation=True, return_tensors="pt")['input_ids'][0]
-            for target in data['target']
-        ],
-    })
+    # Tokenisasi dataset (gunakan batch tokenization)
+    def tokenize_function(examples):
+        inputs = tokenizer(
+            examples["prompt"],
+            max_length=max_length,
+            truncation=True,
+            padding="max_length",
+        )
+        labels = tokenizer(
+            examples["target"],
+            max_length=max_length,
+            truncation=True,
+            padding="max_length",
+        )
+        inputs["labels"] = labels["input_ids"]
+        return inputs
+
+    # Konversi dataset ke Dataset dari Hugging Face
+    dataset = Dataset.from_pandas(data)
+    tokenized_dataset = dataset.map(tokenize_function, batched=True)
 
     # Training arguments
     training_args = TrainingArguments(
@@ -72,7 +85,7 @@ def train_text_generation(model_name, dataset_file, output_dir, max_length=512):
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=dataset
+        train_dataset=tokenized_dataset,
     )
     trainer.train()
 
