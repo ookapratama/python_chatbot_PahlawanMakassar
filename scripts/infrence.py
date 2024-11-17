@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -14,25 +15,30 @@ def load_model(model_path):
         print(f"Error saat memuat model atau tokenizer: {e}")
         return None, None
 
+def find_context(question, dataset_file):
+    """
+    Mencari konteks berdasarkan pertanyaan dari dataset.
+    """
+    try:
+        data = pd.read_csv(dataset_file)
+        for _, row in data.iterrows():
+            # Cek kecocokan pertanyaan (case-insensitive)
+            if question.lower() in row['question'].lower():
+                return row['context']
+        return None
+    except Exception as e:
+        print(f"Error saat mencari konteks: {e}")
+        return None
+
 def inference_text_generation(question, context, model, tokenizer, max_length=50):
     """
     Melakukan inferensi dengan model Text Generation.
-    
-    Args:
-    - question: Pertanyaan yang diajukan pengguna.
-    - context: Konteks untuk menjawab pertanyaan.
-    - model: Model Text Generation yang telah dilatih.
-    - tokenizer: Tokenizer untuk model Text Generation.
-    - max_length: Panjang maksimum teks yang dihasilkan.
-
-    Returns:
-    - Jawaban yang dihasilkan oleh model.
     """
     if model is None or tokenizer is None:
         return "Model atau tokenizer belum dimuat dengan benar."
 
     # Gabungkan pertanyaan dan konteks menjadi prompt
-    prompt = f"{question} {context}"
+    prompt = f"{question} {context}" if context else f"{question}"
     
     try:
         # Tokenisasi prompt
@@ -49,6 +55,7 @@ def inference_text_generation(question, context, model, tokenizer, max_length=50
 if __name__ == "__main__":
     # Path ke model Text Generation yang telah dilatih
     model_path = "./fine_tuned_model_text_gen/"
+    dataset_file = "../dataset/qa_dataset.csv"  # Dataset untuk mencari konteks
     
     # Memuat model dan tokenizer
     model, tokenizer = load_model(model_path)
@@ -60,9 +67,13 @@ if __name__ == "__main__":
         if question.lower() == "exit":
             break
         
-        context = input("Masukkan konteks: ")
-        if context.lower() == "exit":
-            break
+        # Cari konteks otomatis dari dataset
+        context = find_context(question, dataset_file)
+        if not context:
+            print("Konteks tidak ditemukan dalam dataset. Harap masukkan konteks secara manual.")
+            context = input("Masukkan konteks: ")
+            if context.lower() == "exit":
+                break
 
         # Proses inferensi
         answer = inference_text_generation(question, context, model, tokenizer, max_length=50)
