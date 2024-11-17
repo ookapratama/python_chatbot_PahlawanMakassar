@@ -1,11 +1,9 @@
 import pandas as pd
-from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import AutoTokenizer
 import torch
+from transformers import AutoModelForQuestionAnswering
 
 def preprocess_data_for_qa(dataset_file, model_name, max_length=512):
-    """
-    Preprocessing dataset untuk QA.
-    """
     data = pd.read_csv(dataset_file)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -15,7 +13,6 @@ def preprocess_data_for_qa(dataset_file, model_name, max_length=512):
         context = row['context']
         answer = row['answers']
 
-        # Tokenisasi dan cari posisi jawaban
         inputs = tokenizer(
             question, context, add_special_tokens=True, max_length=max_length, truncation=True, return_offsets_mapping=True
         )
@@ -44,9 +41,6 @@ def preprocess_data_for_qa(dataset_file, model_name, max_length=512):
     return tokenized_data
 
 def prepare_text_generation_dataset(dataset_file, qa_model_path, output_file, max_length=512):
-    """
-    Menggunakan model QA untuk membuat dataset Text Generation.
-    """
     data = pd.read_csv(dataset_file)
     tokenizer = AutoTokenizer.from_pretrained(qa_model_path)
     qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model_path)
@@ -65,7 +59,6 @@ def prepare_text_generation_dataset(dataset_file, qa_model_path, output_file, ma
 
         answer = tokenizer.decode(inputs['input_ids'][0][start_idx:end_idx], skip_special_tokens=True)
 
-        # Dataset untuk Text Generation
         prompt = f"{question} {context}"
         target = answer
         text_gen_data.append({"prompt": prompt, "target": target})

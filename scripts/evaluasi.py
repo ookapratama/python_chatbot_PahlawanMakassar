@@ -3,9 +3,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import pandas as pd
 
 def evaluate_text_generation(model_path, dataset_file, max_length=512):
-    """
-    Mengevaluasi model Text Generation dengan BLEU Score.
-    """
     model = AutoModelForCausalLM.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     data = pd.read_csv(dataset_file)

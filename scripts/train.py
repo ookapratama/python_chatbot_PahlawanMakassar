@@ -1,13 +1,9 @@
-import torch
+import pandas as pd
 from transformers import AutoModelForQuestionAnswering, AutoModelForCausalLM, Trainer, TrainingArguments, AutoTokenizer
 from datasets import Dataset
-import pandas as pd
-from preproces import preprocess_data_for_qa
 
 def train_qa(model_name, dataset_file, output_dir, max_length=512):
-    """
-    Melatih model QA.
-    """
+    from preproces import preprocess_data_for_qa
     tokenized_data = preprocess_data_for_qa(dataset_file, model_name, max_length)
     dataset = Dataset.from_dict({
         'input_ids': [d['input_ids'] for d in tokenized_data],
@@ -34,9 +30,6 @@ def train_qa(model_name, dataset_file, output_dir, max_length=512):
     tokenizer.save_pretrained(output_dir)
 
 def train_text_generation(model_name, dataset_file, output_dir, max_length=512):
-    """
-    Melatih model Text Generation.
-    """
     data = pd.read_csv(dataset_file)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
