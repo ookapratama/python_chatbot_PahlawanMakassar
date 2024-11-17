@@ -55,7 +55,7 @@ def inference_text_generation(question, context, model, tokenizer, max_length=50
 if __name__ == "__main__":
     # Path ke model Text Generation yang telah dilatih
     model_path = "./fine_tuned_model_text_gen/"
-    dataset_file = "../dataset/qa_dataset.csv"  # Dataset untuk mencari konteks
+    dataset_file = "../dataset/enhanced_qa_dataset.csv"  # Dataset untuk mencari konteks
     
     # Memuat model dan tokenizer
     model, tokenizer = load_model(model_path)

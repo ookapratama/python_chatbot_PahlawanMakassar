@@ -15,7 +15,7 @@ def main():
     )
     
     # Tambahkan argumen umum
-    parser.add_argument("--model_name", type=str, default="gpt2", help="Nama model pretrained.")
+    parser.add_argument("--model_name", type=str, default="EleutherAI/gpt-neo-1.3B", help="Nama model pretrained.")
     parser.add_argument("--qa_model_path", type=str, help="Path ke model QA yang sudah dilatih.")
     parser.add_argument("--dataset_file", type=str, help="Path ke dataset.")
     parser.add_argument("--output_dir", type=str, help="Direktori output untuk menyimpan model.")
