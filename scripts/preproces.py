@@ -1,61 +1,38 @@
 import pandas as pd
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+import torch
 
-def preprocess_data(dataset_file, model_name, max_length=512):
+def preprocess_data_for_qa(dataset_file, model_name, max_length=512):
     """
     Preprocessing dataset untuk QA.
-
-    Args:
-    - dataset_file: Lokasi file CSV dengan kolom 'question', 'context', 'answers'.
-    - model_name: Nama model untuk tokenisasi.
-    - max_length: Panjang maksimal token.
-
-    Returns:
-    - tokenized_data: List of dictionaries dengan tokenisasi dan posisi jawaban.
     """
-    # Load dataset dan tokenizer
-    data = pd.read_csv(dataset_file)    
+    data = pd.read_csv(dataset_file)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     tokenized_data = []
     for _, row in data.iterrows():
         question = row['question']
         context = row['context']
-        answer_text = row['answers']
+        answer = row['answers']
 
-        # Cari posisi start dan end dari jawaban dalam konteks asli
-        start_char = context.find(answer_text)
-        if start_char == -1:
-            continue  # Lewati jika jawaban tidak ditemukan dalam context
-        end_char = start_char + len(answer_text)
-
-        # Tokenisasi question dan context
+        # Tokenisasi dan cari posisi jawaban
         inputs = tokenizer(
-            question,
-            context,
-            add_special_tokens=True,
-            max_length=max_length,
-            padding="max_length",
-            truncation=True,
-            return_offsets_mapping=True
+            question, context, add_special_tokens=True, max_length=max_length, truncation=True, return_offsets_mapping=True
         )
+        start_char = context.find(answer)
+        end_char = start_char + len(answer)
 
-        # Konversi posisi karakter ke indeks token
-        offsets = inputs["offset_mapping"]
         start_token, end_token = None, None
-
-        for idx, (start, end) in enumerate(offsets):
+        for idx, (start, end) in enumerate(inputs["offset_mapping"]):
             if start == start_char:
                 start_token = idx
             if end == end_char:
                 end_token = idx
                 break
 
-        # Jika start_token atau end_token tidak ditemukan, skip contoh ini
         if start_token is None or end_token is None:
             continue
 
-        # Siapkan contoh tokenized
         tokenized_example = {
             'input_ids': inputs['input_ids'],
             'attention_mask': inputs['attention_mask'],
@@ -65,3 +42,33 @@ def preprocess_data(dataset_file, model_name, max_length=512):
         tokenized_data.append(tokenized_example)
 
     return tokenized_data
+
+def prepare_text_generation_dataset(dataset_file, qa_model_path, output_file, max_length=512):
+    """
+    Menggunakan model QA untuk membuat dataset Text Generation.
+    """
+    data = pd.read_csv(dataset_file)
+    tokenizer = AutoTokenizer.from_pretrained(qa_model_path)
+    qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model_path)
+
+    text_gen_data = []
+    for _, row in data.iterrows():
+        question = row['question']
+        context = row['context']
+
+        inputs = tokenizer(
+            question, context, return_tensors="pt", truncation=True, max_length=max_length
+        )
+        outputs = qa_model(**inputs)
+        start_idx = torch.argmax(outputs.start_logits)
+        end_idx = torch.argmax(outputs.end_logits) + 1
+
+        answer = tokenizer.decode(inputs['input_ids'][0][start_idx:end_idx], skip_special_tokens=True)
+
+        # Dataset untuk Text Generation
+        prompt = f"{question} {context}"
+        target = answer
+        text_gen_data.append({"prompt": prompt, "target": target})
+
+    pd.DataFrame(text_gen_data).to_csv(output_file, index=False)
+    print(f"Dataset Text Generation disimpan di {output_file}")

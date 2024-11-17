@@ -1,1 +1,2 @@
 ./scripts/fine_tuned_model/*
+./scripts/*.zip
