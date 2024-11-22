@@ -1,8 +1,11 @@
+import nltk
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 from nltk.translate.meteor_score import meteor_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import pandas as pd
+
+nltk.download('wordnet')
 
 def evaluate_text_generation(model_path, dataset_file, max_length=512, max_new_tokens=50):
     """
@@ -57,8 +60,8 @@ def evaluate_text_generation(model_path, dataset_file, max_length=512, max_new_t
         rouge_scores["rouge-2"].append(rouge_score["rouge2"].fmeasure)
         rouge_scores["rouge-l"].append(rouge_score["rougeL"].fmeasure)
 
-        # Hitung METEOR Score
-        meteor = meteor_score([" ".join(reference)], " ".join(candidate))
+        # Hitung METEOR Score (gunakan daftar kata)
+        meteor = meteor_score([reference], candidate)
         meteor_scores.append(meteor)
 
     # Rata-rata hasil evaluasi
