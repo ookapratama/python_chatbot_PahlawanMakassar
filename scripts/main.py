@@ -2,7 +2,7 @@ import argparse
 from train import train_qa, train_text_generation
 from preproces import preprocess_data_for_qa, prepare_text_generation_dataset
 from evaluasi import evaluate_text_generation
-from infrence import load_model, inference_text_generation
+# from infrence import load_model, inference_text_generation
 
 def main():
     parser = argparse.ArgumentParser(description="Pipeline Fine-Tuning QA → Text Generation")
@@ -45,11 +45,11 @@ def main():
         print("Evaluasi model Text Generation...")
         evaluate_text_generation(args.qa_model_path, args.dataset_file, args.max_length)
     
-    elif args.mode == "inference":
-        print("Inferensi dengan model Text Generation...")
-        model, tokenizer = load_model(args.qa_model_path)
-        answer = inference_text_generation(args.question, args.context, model, tokenizer, args.max_length)
-        print(f"Jawaban: {answer}")
+    # elif args.mode == "inference":
+    #     print("Inferensi dengan model Text Generation...")
+    #     model, tokenizer = load_model(args.qa_model_path)
+    #     answer = inference_text_generation(args.question, args.context, model, tokenizer, args.max_length)
+    #     print(f"Jawaban: {answer}")
     
     else:
         print("Mode tidak dikenal!")
