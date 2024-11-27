@@ -138,8 +138,8 @@ def text_generation_inference_only(model_path, dataset_file, max_new_tokens=50):
 
 if __name__ == "__main__":
     # Path ke model
-    gen_model_path = "./tuning_textGen_nusantara_indo_chat/"
-    # gen_model_path = "./tuning_gpt2_medium_indo/"
+    # gen_model_path = "./tuning_textGen_nusantara_indo_chat/"
+    gen_model_path = "./tuning_gpt2_medium_indo/"
     text_gen_dataset_file = "../dataset/text_generation_dataset.csv"
 
     print("Pilih mode inferensi:")
